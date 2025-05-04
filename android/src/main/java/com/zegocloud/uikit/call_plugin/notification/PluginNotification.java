@@ -133,7 +133,6 @@ public class PluginNotification {
                 .setContent(contentView)
                 .setContentIntent(clickPendingIntent)
                 .setDeleteIntent(cancelPendingIntent)
-                .setFullScreenIntent(fullscreenPendingIntent, true)
                 .setSound(retrieveSoundResourceUri(context, soundSource))
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setAutoCancel(true)
