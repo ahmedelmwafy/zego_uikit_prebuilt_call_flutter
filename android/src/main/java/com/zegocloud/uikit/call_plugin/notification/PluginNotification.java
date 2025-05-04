@@ -38,7 +38,7 @@ public class PluginNotification {
         Log.i("call plugin", "add IM Notification, title:" + title + ",body:" + body + ",channelId:" + channelID +
                 ",soundSource:" + soundSource + ",iconSource:" + iconSource + "," +
                 "notificationId:" + notificationIdString + ", isVibrate:" + isVibrate);
-
+           
         int notificationId = 1;
         try {
             notificationId = Integer.parseInt(notificationIdString);
@@ -53,6 +53,10 @@ public class PluginNotification {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
             wakeUpScreen(context);
         }
+         if (context instanceof Activity) {
+                requestFullScreenPermissionIfNeeded((Activity) context);
+            }
+
 
         int flags = PendingIntent.FLAG_UPDATE_CURRENT;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -321,5 +325,26 @@ public class PluginNotification {
         ApplicationInfo applicationInfo = context.getApplicationInfo();
         int stringId = applicationInfo.labelRes;
         return stringId == 0 ? applicationInfo.nonLocalizedLabel.toString() : context.getString(stringId);
+    }
+}
+
+
+public void requestFullScreenPermissionIfNeeded(Activity activity) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) { // Android 14 / API 34
+        NotificationManager notificationManager = (NotificationManager) activity.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (!notificationManager.canUseFullScreenIntent()) {
+            Log.w(TAG, "Full-screen intent not allowed. Requesting permission...");
+
+            Intent intent = new Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                    .putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, activity.getPackageName());
+
+            try {
+                activity.startActivity(intent);
+            } catch (ActivityNotFoundException e) {
+                Log.e(TAG, "Unable to open notification settings: " + e.getMessage());
+            }
+        } else {
+            Log.i(TAG, "Full-screen intent already allowed.");
+        }
     }
 }
